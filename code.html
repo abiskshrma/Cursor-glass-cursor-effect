@@ -1,0 +1,77 @@
+<!-- 1. Define an SVG filter for subtle distortion -->
+<svg width="0" height="0">
+  <filter id="distortionFilter">
+    <feTurbulence type="fractalNoise"
+                  baseFrequency="0.005"
+                  numOctaves="2"
+                  result="noise"/>
+    <feDisplacementMap in="SourceGraphic"
+                       in2="noise"
+                       scale="3"/>
+  </filter>
+</svg>
+
+<style>
+  /* 2. Hide the native cursor */
+  html, body {
+    cursor: none !important;
+  }
+
+  /* 3. Styled glass-lens cursor */
+  #glassCursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 30px;                        /* lens diameter */
+    height: 30px;
+    border-radius: 50%;                  /* full circle */
+    background: rgba(255, 255, 255, 0.04); /* ultra-light fill */
+    border: 2px solid rgba(255, 255, 255, 0.8); 
+    box-shadow:
+      inset 0 4px 8px rgba(255, 255, 255, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.15);
+    backdrop-filter:
+      blur(2px)
+      saturate(160%)
+      brightness(1.1)
+      contrast(1.1)
+      url(#distortionFilter);           /* apply our SVG warp */
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%) scale(1.1); 
+    transition:
+      transform 0.15s ease-out,
+      backdrop-filter 0.3s ease-out;
+  }
+
+  /* 4. Click feedback shrinks lens slightly */
+  #glassCursor.pointer-down {
+    transform: translate(-50%, -50%) scale(1.03);
+    backdrop-filter:
+      blur(1px)
+      saturate(140%)
+      brightness(1.05)
+      contrast(1.05)
+      url(#distortionFilter);
+  }
+</style>
+
+<!-- 5. Inject the lens element -->
+<div id="glassCursor"></div>
+
+<script>
+  const cursor = document.getElementById('glassCursor');
+
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+
+  document.addEventListener('mousedown', () => {
+    cursor.classList.add('pointer-down');
+  });
+
+  document.addEventListener('mouseup', () => {
+    cursor.classList.remove('pointer-down');
+  });
+</script>
